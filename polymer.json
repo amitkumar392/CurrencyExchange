@@ -5,7 +5,7 @@
   "sources": [
     "src/**/*",
     "manifest/**",
-    "wall.png",
+    "wall.jpg",
     "package.json"
    ],
    "extraDependencies": [

@@ -154,6 +154,7 @@ content-type="application/json" on-error="_handleError"></iron-ajax>
   }
   // to move to dashboard page
   _handleDashboard() {
+    
     this.set('route.path', './dashboard-page')
 
   }
