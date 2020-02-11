@@ -126,6 +126,7 @@ content-type="application/json" on-error="_handleError"></iron-ajax>
             data: Array,
         };
     }
+    //getting list of all the transasctions
     connectedCallback() {
       super.connectedCallback();
     let userId = sessionStorage.getItem('userId');
@@ -140,9 +141,11 @@ content-type="application/json" on-error="_handleError"></iron-ajax>
     ajax.body = postObj ? JSON.stringify(postObj) : undefined;
     ajax.generateRequest();
   }
+  //routing to the fund transfer section
   _handleTransfer(){
     this.set('route.path', './fund-transfer')
   }
+  //handling the responses from the API call
   _handleResponse(event) {
     switch (this.action) {
       case 'List':
@@ -151,6 +154,7 @@ content-type="application/json" on-error="_handleError"></iron-ajax>
         break;
     }
   }
+    //if session storage is clear then it will be redirected to login page
     ready(){
       super.ready();
       let name =sessionStorage.getItem('userName');

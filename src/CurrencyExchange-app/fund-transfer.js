@@ -51,6 +51,10 @@ class FundTransfer extends PolymerElement {
       left:300px;
   
   }
+  paper-toast {
+    --paper-toast-background-color: black;
+    --paper-toast-color: white;
+  }
 a{
   text-decoration:none;
   color:white;
@@ -111,13 +115,18 @@ content-type="application/json" on-error="_handleError"></iron-ajax>
       }
     };
   }
-  // getting the values of the currencies list 
+  // getting the values of the currencies list from the API
   connectedCallback() {
     super.connectedCallback();
     this.userName = sessionStorage.getItem('userName');
     this._makeAjax(`http://10.117.189.177:9090/forexpay/currencies`, 'get', null)
   }
+  //transfering the amount with all the validation and showing all the details fetched from API
   _handleTransfer() {
+    if(parseInt(this.shadowRoot.querySelector('#toAccount').value)==''||parseInt(this.shadowRoot.querySelector('#amount').value)==''|| this.shadowRoot.querySelector('#currency').value==''){
+      this.$.error.open();
+      return false;
+    }else{
     if (this.$.form.validate()) {
       let userId = sessionStorage.getItem('userId')
       let destinationAccountNumber = parseInt(this.shadowRoot.querySelector('#toAccount').value);
@@ -133,6 +142,8 @@ content-type="application/json" on-error="_handleError"></iron-ajax>
       this.$.error.open();
     }
   }
+  }
+  //if session storage is clear then it will be redirected to login page
   ready() {
     super.ready();
     let name = sessionStorage.getItem('userName');
@@ -141,6 +152,7 @@ content-type="application/json" on-error="_handleError"></iron-ajax>
       this.set('route.path', './login-page')
     }
   }
+  // to move to dashboard page
   _handleDashboard() {
     this.set('route.path', './dashboard-page')
 
@@ -161,9 +173,11 @@ content-type="application/json" on-error="_handleError"></iron-ajax>
     }
 
   }
+  // If transaction api throws an error
   _handleError() {
     this.$.fail.open();
   }
+  //updating fields when values are change in amount or currency field
   _handleChange() {
     let amount = parseInt(this.shadowRoot.querySelector('#amount').value);
     this.currency = this.shadowRoot.querySelector('#currency').value;
@@ -180,6 +194,7 @@ content-type="application/json" on-error="_handleError"></iron-ajax>
     ajax.body = postObj ? JSON.stringify(postObj) : undefined;
     ajax.generateRequest();
   }
+ // handling the Logout
   _handleLogout() {
     sessionStorage.clear();
   }
