@@ -86,6 +86,7 @@ content-type="application/json" on-error="_handleError"></iron-ajax>
       let phone = this.phone;
       let password = this.password;
       this.details = { mobile: phone, password: password }
+      console.log(this.details)
       this._makeAjax(`http://10.117.189.177:9090/forexpay/users`, 'post', this.details);
     } else {
       this.$.blankForm.open();
@@ -100,10 +101,11 @@ content-type="application/json" on-error="_handleError"></iron-ajax>
   // getting response from server and storing user name and id in session storage
   _handleResponse(event) {
     this.respCheck = event.detail.response
+    console.log(this.respCheck)
     sessionStorage.setItem('userName', this.respCheck.userName);
     sessionStorage.setItem('userId', this.respCheck.userId);
     this.$.form.reset();
-    this.set('route.path', './fund-transfer')
+    this.set('route.path', './dashboard-page')
   }
   // calling main ajax call method 
   _makeAjax(url, method, postObj) {

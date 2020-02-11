@@ -11,8 +11,8 @@ import '@polymer/app-route/app-location.js';
 * @polymer
 */
 class Dashboard extends PolymerElement {
-    static get template() {
-        return html`
+  static get template() {
+    return html`
 <style>
   :host {
     display: block; 
@@ -25,7 +25,8 @@ class Dashboard extends PolymerElement {
   
   table {
     border-collapse: collapse;
-    margin-top:50px;
+    margin-top:20px;
+    margin-bottom:20px;
     width: 90%;
   }
   
@@ -73,6 +74,7 @@ class Dashboard extends PolymerElement {
     color:white;
   }
 </style>
+
 <app-location route={{route}}></app-location>
 <iron-ajax id="ajax" handle-as="json" on-response="_handleResponse" 
 content-type="application/json" on-error="_handleError"></iron-ajax>
@@ -81,11 +83,16 @@ content-type="application/json" on-error="_handleError"></iron-ajax>
 <paper-button raised class="custom indigo" on-click="_handleTransfer">Transfer</paper-button>
 <paper-button raised class="custom indigo" on-click="_handleLogout"><a name="login-page" href="[[rootPath]]login-page">Logout</a></paper-button>
 </div>
+<h3>Account Number: {{userData.accountNumber}}</h3>
+<h3>Balance: {{userData.balance}} INR</h3>
+<h3>Bank Name: {{userData.bankName}}</h3>
+<h3>Branch: {{userData.branchName}}</h3>
+<h3>Currency Type: {{userData.currencyType}}</h3>
+<h3>Minimum Balance: {{userData.minimumBalance}}INR</h3>
 <h1>Transaction History</h1>
 <table>
   <tr>
     <th>To Account</th>
-    <th>From Account</th>
     <th>Type</th>
     <th>Date</th>
     <th>Amount</th>
@@ -93,47 +100,48 @@ content-type="application/json" on-error="_handleError"></iron-ajax>
     <th>Currency</th>
     <th>Status</th>
     </tr>
-    <template is="dom-repeat" items={{data}}>
+    <template is="dom-repeat" items={{data}} as="data">
   <tr>
-    <td>{{data.sourceAccountNumber}}</td>
     <td>{{data.destinationAccountNumber}}</td>
-    <td>{{data.transactionType}}}}</td>
-    <td>{{data.transactionDate}}}}</td>
-    <td>{{data.transactionAmount}}}}</td>
-    <td>{{data.availableBalance}}}}</td>
-    <td>{{data.currency}}}}</td>
-    <td>{{data.status}}}}</td>
+    <td>{{data.transactionType}}</td>
+    <td>{{data.transactionDate}}</td>
+    <td>{{data.transactionAmount}}</td>
+    <td>{{data.availableBalance}}</td>
+    <td>{{data.currency}}</td>
+    <td>{{data.status}}</td>
   </tr>
   </template>
 </table>
 
 
 `;
-    }
-    static get properties() {
-        return {
-            prop1: {
-                type: String,
-                value: 'Forex Transfer'
-            },
-            userName: {
-              type: String,
-              value: sessionStorage.getItem('userName')
-            }, action: {
-              type: String, 
-              value: 'List'
-            },
-            data: Array,
-        };
-    }
-    //getting list of all the transasctions
-    connectedCallback() {
-      super.connectedCallback();
+  }
+  static get properties() {
+    return {
+      prop1: {
+        type: String,
+        value: 'Forex Transfer'
+      },
+      userName: {
+        type: String,
+        value: sessionStorage.getItem('userName')
+      }, action: {
+        type: String
+      },
+      data: Array,
+      userData: Array
+    };
+  }
+  //getting list of all the transasctions
+  connectedCallback() {
+    super.connectedCallback();
     let userId = sessionStorage.getItem('userId');
     this.userName = sessionStorage.getItem('userName');
-      this._makeAjax(`http://10.117.189.177:9090/forexpay/users/${userId}/transactions`, 'get', null)
-    }
-     // calling main ajax call method 
+    this._makeAjax(`http://10.117.189.177:9090/forexpay/accounts/${userId}`, 'get', null)
+    this.action = 'Data'
+
+  }
+  // calling main ajax call method 
   _makeAjax(url, method, postObj) {
     let ajax = this.$.ajax;
     ajax.method = method;
@@ -142,26 +150,31 @@ content-type="application/json" on-error="_handleError"></iron-ajax>
     ajax.generateRequest();
   }
   //routing to the fund transfer section
-  _handleTransfer(){
+  _handleTransfer() {
     this.set('route.path', './fund-transfer')
   }
   //handling the responses from the API call
   _handleResponse(event) {
     switch (this.action) {
+      case 'Data':
+        this.userData = event.detail.response;
+        this._makeAjax(`http://10.117.189.177:9090/forexpay/accounts/${this.userData.accountNumber}/transactions`, 'get', null)
+        this.action = 'List'
+        break;
       case 'List':
         this.data = event.detail.response;
         console.log(this.data)
         break;
     }
   }
-    //if session storage is clear then it will be redirected to login page
-    ready(){
-      super.ready();
-      let name =sessionStorage.getItem('userName');
-      if(name === null) {
-        this.set('route.path', './login-page')
-      }
+  //if session storage is clear then it will be redirected to login page
+  ready() {
+    super.ready();
+    let name = sessionStorage.getItem('userName');
+    if (name === null) {
+      this.set('route.path', './login-page')
     }
+  }
 
 }
 
